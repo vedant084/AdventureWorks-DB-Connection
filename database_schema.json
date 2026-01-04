@@ -1,0 +1,3512 @@
+{
+  "Production.ScrapReason": {
+    "description": "Lookup table containing reasons why a product was scrapped during manufacturing.",
+    "columns": [
+      {
+        "name": "ScrapReasonID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ScrapReasonID"
+    ],
+    "foreign_keys": []
+  },
+  "HumanResources.Shift": {
+    "description": "Work shift lookup table (e.g., Day, Evening, Night).",
+    "columns": [
+      {
+        "name": "ShiftID",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "StartTime",
+        "type": "time",
+        "nullable": false
+      },
+      {
+        "name": "EndTime",
+        "type": "time",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ShiftID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductCategory": {
+    "description": "High-level classification of products (e.g., Bikes, Accessories).",
+    "columns": [
+      {
+        "name": "ProductCategoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductCategoryID"
+    ],
+    "foreign_keys": []
+  },
+  "Purchasing.ShipMethod": {
+    "description": "Shipping methods used for orders (e.g., Cargo, Express).",
+    "columns": [
+      {
+        "name": "ShipMethodID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ShipBase",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ShipRate",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ShipMethodID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductCostHistory": {
+    "description": "Historical record of product standard costs over time.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "StandardCost",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "StartDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Production.ProductDescription": {
+    "description": "Product descriptions in various languages.",
+    "columns": [
+      {
+        "name": "ProductDescriptionID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Description",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductDescriptionID"
+    ],
+    "foreign_keys": []
+  },
+  "Sales.ShoppingCartItem": {
+    "description": "Items currently in customer online shopping carts.",
+    "columns": [
+      {
+        "name": "ShoppingCartItemID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ShoppingCartID",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Quantity",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "DateCreated",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ShoppingCartItemID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Production.ProductDocument": {
+    "description": "Cross-reference table linking products to technical documentation.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "DocumentNode",
+        "type": "hierarchyid",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "DocumentNode"
+    ],
+    "foreign_keys": [
+      {
+        "column": "DocumentNode",
+        "references": "Production.Document(DocumentNode)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "dbo.DatabaseLog": {
+    "description": "Audit log recording DDL (Data Definition Language) changes and database events.",
+    "columns": [
+      {
+        "name": "DatabaseLogID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PostTime",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "DatabaseUser",
+        "type": "sysname",
+        "nullable": false
+      },
+      {
+        "name": "Event",
+        "type": "sysname",
+        "nullable": false
+      },
+      {
+        "name": "Schema",
+        "type": "sysname",
+        "nullable": true
+      },
+      {
+        "name": "Object",
+        "type": "sysname",
+        "nullable": true
+      },
+      {
+        "name": "TSQL",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "XmlEvent",
+        "type": "xml",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "DatabaseLogID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductInventory": {
+    "description": "Inventory levels, including bin and shelf locations, for products at various locations.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "LocationID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "Shelf",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Bin",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "Quantity",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "LocationID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "LocationID",
+        "references": "Production.Location(LocationID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Sales.SpecialOffer": {
+    "description": "Details about promotions and discounts.",
+    "columns": [
+      {
+        "name": "SpecialOfferID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Description",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "DiscountPct",
+        "type": "smallmoney",
+        "nullable": false
+      },
+      {
+        "name": "Type",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Category",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "MinQty",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "MaxQty",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SpecialOfferID"
+    ],
+    "foreign_keys": []
+  },
+  "dbo.ErrorLog": {
+    "description": "Log of errors encountered in the database.",
+    "columns": [
+      {
+        "name": "ErrorLogID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ErrorTime",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "UserName",
+        "type": "sysname",
+        "nullable": false
+      },
+      {
+        "name": "ErrorNumber",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ErrorSeverity",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "ErrorState",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "ErrorProcedure",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "ErrorLine",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "ErrorMessage",
+        "type": "nvarchar",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ErrorLogID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductListPriceHistory": {
+    "description": "Historical record of product list prices over time.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "ListPrice",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "StartDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Person.Address": {
+    "description": "Street addresses for customers, employees, and vendors.",
+    "columns": [
+      {
+        "name": "AddressID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AddressLine1",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "AddressLine2",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "City",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "StateProvinceID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PostalCode",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "SpatialLocation",
+        "type": "geography",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "AddressID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "StateProvinceID",
+        "references": "Person.StateProvince(StateProvinceID)"
+      }
+    ]
+  },
+  "Sales.SpecialOfferProduct": {
+    "description": "Cross-reference table linking products to specific special offers.",
+    "columns": [
+      {
+        "name": "SpecialOfferID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SpecialOfferID",
+      "ProductID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "SpecialOfferID",
+        "references": "Sales.SpecialOffer(SpecialOfferID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Production.ProductModel": {
+    "description": "Groups products into models for cataloging and instructions.",
+    "columns": [
+      {
+        "name": "ProductModelID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "CatalogDescription",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "Instructions",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductModelID"
+    ],
+    "foreign_keys": []
+  },
+  "Person.AddressType": {
+    "description": "Lookup table for address categories (e.g., Billing, Home, Shipping).",
+    "columns": [
+      {
+        "name": "AddressTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "AddressTypeID"
+    ],
+    "foreign_keys": []
+  },
+  "Person.StateProvince": {
+    "description": "State and province lookup table linked to country regions.",
+    "columns": [
+      {
+        "name": "StateProvinceID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StateProvinceCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "CountryRegionCode",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "IsOnlyStateProvinceFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "StateProvinceID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "CountryRegionCode",
+        "references": "Person.CountryRegion(CountryRegionCode)"
+      },
+      {
+        "column": "TerritoryID",
+        "references": "Sales.SalesTerritory(TerritoryID)"
+      }
+    ]
+  },
+  "Production.ProductModelIllustration": {
+    "description": "Links product models to diagrams and illustrations.",
+    "columns": [
+      {
+        "name": "ProductModelID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "IllustrationID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductModelID",
+      "IllustrationID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductModelID",
+        "references": "Production.ProductModel(ProductModelID)"
+      },
+      {
+        "column": "IllustrationID",
+        "references": "Production.Illustration(IllustrationID)"
+      }
+    ]
+  },
+  "dbo.AWBuildVersion": {
+    "description": "Current database version and build information.",
+    "columns": [
+      {
+        "name": "SystemInformationID",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "Database Version",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "VersionDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SystemInformationID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductModelProductDescriptionCulture": {
+    "description": "Links product models to descriptions in specific languages (Cultures).",
+    "columns": [
+      {
+        "name": "ProductModelID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductDescriptionID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CultureID",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductModelID",
+      "ProductDescriptionID",
+      "CultureID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductDescriptionID",
+        "references": "Production.ProductDescription(ProductDescriptionID)"
+      },
+      {
+        "column": "ProductModelID",
+        "references": "Production.ProductModel(ProductModelID)"
+      },
+      {
+        "column": "CultureID",
+        "references": "Production.Culture(CultureID)"
+      }
+    ]
+  },
+  "Production.BillOfMaterials": {
+    "description": "Defines the assembly hierarchy and components for manufactured products.",
+    "columns": [
+      {
+        "name": "BillOfMaterialsID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductAssemblyID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "ComponentID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "UnitMeasureCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "BOMLevel",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "PerAssemblyQty",
+        "type": "decimal",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BillOfMaterialsID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "UnitMeasureCode",
+        "references": "Production.UnitMeasure(UnitMeasureCode)"
+      },
+      {
+        "column": "ProductAssemblyID",
+        "references": "Production.Product(ProductID)"
+      },
+      {
+        "column": "ComponentID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Sales.Store": {
+    "description": "Customers who are retail stores, including demographic data.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "SalesPersonID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "Demographics",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.BusinessEntity(BusinessEntityID)"
+      },
+      {
+        "column": "SalesPersonID",
+        "references": "Sales.SalesPerson(BusinessEntityID)"
+      }
+    ]
+  },
+  "Production.ProductPhoto": {
+    "description": "Product images and file names.",
+    "columns": [
+      {
+        "name": "ProductPhotoID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ThumbNailPhoto",
+        "type": "varbinary",
+        "nullable": true
+      },
+      {
+        "name": "ThumbnailPhotoFileName",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "LargePhoto",
+        "type": "varbinary",
+        "nullable": true
+      },
+      {
+        "name": "LargePhotoFileName",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductPhotoID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductProductPhoto": {
+    "description": "Cross-reference table linking products to one or more photos.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductPhotoID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Primary",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "ProductPhotoID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductPhotoID",
+        "references": "Production.ProductPhoto(ProductPhotoID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Production.TransactionHistory": {
+    "description": "Record of all product inventory transactions.",
+    "columns": [
+      {
+        "name": "TransactionID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ReferenceOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ReferenceOrderLineID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "TransactionDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "TransactionType",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Quantity",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ActualCost",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "TransactionID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Production.ProductReview": {
+    "description": "Customer ratings and reviews for products.",
+    "columns": [
+      {
+        "name": "ProductReviewID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ReviewerName",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ReviewDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EmailAddress",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Rating",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Comments",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductReviewID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Person.BusinessEntity": {
+    "description": "Base table for all individuals and organizations (People, Vendors, Stores).",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.TransactionHistoryArchive": {
+    "description": "Archived inventory transactions for historical analysis.",
+    "columns": [
+      {
+        "name": "TransactionID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ReferenceOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ReferenceOrderLineID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "TransactionDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "TransactionType",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Quantity",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ActualCost",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "TransactionID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.ProductSubcategory": {
+    "description": "Specific sub-classifications for product categories.",
+    "columns": [
+      {
+        "name": "ProductSubcategoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductCategoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductSubcategoryID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductCategoryID",
+        "references": "Production.ProductCategory(ProductCategoryID)"
+      }
+    ]
+  },
+  "Person.BusinessEntityAddress": {
+    "description": "Links business entities (people/stores) to their addresses.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AddressID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AddressTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "AddressID",
+      "AddressTypeID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "AddressID",
+        "references": "Person.Address(AddressID)"
+      },
+      {
+        "column": "AddressTypeID",
+        "references": "Person.AddressType(AddressTypeID)"
+      },
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.BusinessEntity(BusinessEntityID)"
+      }
+    ]
+  },
+  "Purchasing.ProductVendor": {
+    "description": "Cross-reference table linking products to the vendors who supply them.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AverageLeadTime",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StandardPrice",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "LastReceiptCost",
+        "type": "money",
+        "nullable": true
+      },
+      {
+        "name": "LastReceiptDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "MinOrderQty",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "MaxOrderQty",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "OnOrderQty",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "UnitMeasureCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID",
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "UnitMeasureCode",
+        "references": "Production.UnitMeasure(UnitMeasureCode)"
+      },
+      {
+        "column": "BusinessEntityID",
+        "references": "Purchasing.Vendor(BusinessEntityID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Person.BusinessEntityContact": {
+    "description": "Links business entities (like stores) to specific people as contacts.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PersonID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ContactTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "PersonID",
+      "ContactTypeID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.BusinessEntity(BusinessEntityID)"
+      },
+      {
+        "column": "ContactTypeID",
+        "references": "Person.ContactType(ContactTypeID)"
+      },
+      {
+        "column": "PersonID",
+        "references": "Person.Person(BusinessEntityID)"
+      }
+    ]
+  },
+  "Production.UnitMeasure": {
+    "description": "Lookup table for units of measurement (e.g., KG, EA).",
+    "columns": [
+      {
+        "name": "UnitMeasureCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "UnitMeasureCode"
+    ],
+    "foreign_keys": []
+  },
+  "Purchasing.Vendor": {
+    "description": "Information about companies that provide parts or products.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AccountNumber",
+        "type": "AccountNumber",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "CreditRating",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "PreferredVendorStatus",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "ActiveFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "PurchasingWebServiceURL",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.BusinessEntity(BusinessEntityID)"
+      }
+    ]
+  },
+  "Person.ContactType": {
+    "description": "Lookup table for contact roles (e.g., Owner, Sales Manager).",
+    "columns": [
+      {
+        "name": "ContactTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ContactTypeID"
+    ],
+    "foreign_keys": []
+  },
+  "Sales.CountryRegionCurrency": {
+    "description": "Links countries/regions to their primary currency.",
+    "columns": [
+      {
+        "name": "CountryRegionCode",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "CurrencyCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CountryRegionCode",
+      "CurrencyCode"
+    ],
+    "foreign_keys": [
+      {
+        "column": "CountryRegionCode",
+        "references": "Person.CountryRegion(CountryRegionCode)"
+      },
+      {
+        "column": "CurrencyCode",
+        "references": "Sales.Currency(CurrencyCode)"
+      }
+    ]
+  },
+  "Person.CountryRegion": {
+    "description": "ISO country and region codes.",
+    "columns": [
+      {
+        "name": "CountryRegionCode",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CountryRegionCode"
+    ],
+    "foreign_keys": []
+  },
+  "Production.WorkOrder": {
+    "description": "Manufacturing orders for specific products.",
+    "columns": [
+      {
+        "name": "WorkOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "OrderQty",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StockedQty",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ScrappedQty",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "DueDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ScrapReasonID",
+        "type": "smallint",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "WorkOrderID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ScrapReasonID",
+        "references": "Production.ScrapReason(ScrapReasonID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Purchasing.PurchaseOrderDetail": {
+    "description": "Individual line items for vendor purchase orders.",
+    "columns": [
+      {
+        "name": "PurchaseOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PurchaseOrderDetailID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "DueDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "OrderQty",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "UnitPrice",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "LineTotal",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ReceivedQty",
+        "type": "decimal",
+        "nullable": false
+      },
+      {
+        "name": "RejectedQty",
+        "type": "decimal",
+        "nullable": false
+      },
+      {
+        "name": "StockedQty",
+        "type": "decimal",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "PurchaseOrderID",
+      "PurchaseOrderDetailID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "PurchaseOrderID",
+        "references": "Purchasing.PurchaseOrderHeader(PurchaseOrderID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Production.Product(ProductID)"
+      }
+    ]
+  },
+  "Sales.CreditCard": {
+    "description": "Customer credit card information.",
+    "columns": [
+      {
+        "name": "CreditCardID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CardType",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "CardNumber",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "ExpMonth",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "ExpYear",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CreditCardID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.Culture": {
+    "description": "Language and regional settings for localized data.",
+    "columns": [
+      {
+        "name": "CultureID",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CultureID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.WorkOrderRouting": {
+    "description": "Sequence of manufacturing steps for a work order.",
+    "columns": [
+      {
+        "name": "WorkOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "OperationSequence",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "LocationID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ScheduledStartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ScheduledEndDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ActualStartDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "ActualEndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "ActualResourceHrs",
+        "type": "decimal",
+        "nullable": true
+      },
+      {
+        "name": "PlannedCost",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ActualCost",
+        "type": "money",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "WorkOrderID",
+      "ProductID",
+      "OperationSequence"
+    ],
+    "foreign_keys": [
+      {
+        "column": "WorkOrderID",
+        "references": "Production.WorkOrder(WorkOrderID)"
+      },
+      {
+        "column": "LocationID",
+        "references": "Production.Location(LocationID)"
+      }
+    ]
+  },
+  "Sales.Currency": {
+    "description": "Currency lookup table.",
+    "columns": [
+      {
+        "name": "CurrencyCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CurrencyCode"
+    ],
+    "foreign_keys": []
+  },
+  "Purchasing.PurchaseOrderHeader": {
+    "description": "General information for vendor purchase orders.",
+    "columns": [
+      {
+        "name": "PurchaseOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "RevisionNumber",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "Status",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "EmployeeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "VendorID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ShipMethodID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "OrderDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ShipDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "SubTotal",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "TaxAmt",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "Freight",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "TotalDue",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "PurchaseOrderID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ShipMethodID",
+        "references": "Purchasing.ShipMethod(ShipMethodID)"
+      },
+      {
+        "column": "VendorID",
+        "references": "Purchasing.Vendor(BusinessEntityID)"
+      },
+      {
+        "column": "EmployeeID",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.CurrencyRate": {
+    "description": "Historical and current exchange rates.",
+    "columns": [
+      {
+        "name": "CurrencyRateID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CurrencyRateDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "FromCurrencyCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "ToCurrencyCode",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "AverageRate",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "EndOfDayRate",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CurrencyRateID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "FromCurrencyCode",
+        "references": "Sales.Currency(CurrencyCode)"
+      },
+      {
+        "column": "ToCurrencyCode",
+        "references": "Sales.Currency(CurrencyCode)"
+      }
+    ]
+  },
+  "Sales.Customer": {
+    "description": "Information about customers (can be individuals or stores).",
+    "columns": [
+      {
+        "name": "CustomerID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PersonID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "StoreID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "AccountNumber",
+        "type": "varchar",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "CustomerID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "StoreID",
+        "references": "Sales.Store(BusinessEntityID)"
+      },
+      {
+        "column": "PersonID",
+        "references": "Person.Person(BusinessEntityID)"
+      },
+      {
+        "column": "TerritoryID",
+        "references": "Sales.SalesTerritory(TerritoryID)"
+      }
+    ]
+  },
+  "HumanResources.Department": {
+    "description": "Lookup table for company departments.",
+    "columns": [
+      {
+        "name": "DepartmentID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "GroupName",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "DepartmentID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.Document": {
+    "description": "Technical product documentation and manuals.",
+    "columns": [
+      {
+        "name": "DocumentNode",
+        "type": "hierarchyid",
+        "nullable": false
+      },
+      {
+        "name": "DocumentLevel",
+        "type": "smallint",
+        "nullable": true
+      },
+      {
+        "name": "Title",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Owner",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "FolderFlag",
+        "type": "bit",
+        "nullable": false
+      },
+      {
+        "name": "FileName",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "FileExtension",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Revision",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "ChangeNumber",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Status",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "DocumentSummary",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "Document",
+        "type": "varbinary",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "DocumentNode"
+    ],
+    "foreign_keys": [
+      {
+        "column": "Owner",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.SalesOrderDetail": {
+    "description": "Individual line items for customer sales orders.",
+    "columns": [
+      {
+        "name": "SalesOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "SalesOrderDetailID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CarrierTrackingNumber",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "OrderQty",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "SpecialOfferID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "UnitPrice",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "UnitPriceDiscount",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "LineTotal",
+        "type": "numeric",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SalesOrderID",
+      "SalesOrderDetailID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "SpecialOfferID",
+        "references": "Sales.SpecialOfferProduct(SpecialOfferID)"
+      },
+      {
+        "column": "ProductID",
+        "references": "Sales.SpecialOfferProduct(ProductID)"
+      },
+      {
+        "column": "SalesOrderID",
+        "references": "Sales.SalesOrderHeader(SalesOrderID)"
+      }
+    ]
+  },
+  "Person.EmailAddress": {
+    "description": "Email addresses associated with people.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "EmailAddressID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "EmailAddress",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "EmailAddressID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.Person(BusinessEntityID)"
+      }
+    ]
+  },
+  "HumanResources.Employee": {
+    "description": "Internal employee data including job titles and hire dates.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "NationalIDNumber",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "LoginID",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "OrganizationNode",
+        "type": "hierarchyid",
+        "nullable": true
+      },
+      {
+        "name": "OrganizationLevel",
+        "type": "smallint",
+        "nullable": true
+      },
+      {
+        "name": "JobTitle",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "BirthDate",
+        "type": "date",
+        "nullable": false
+      },
+      {
+        "name": "MaritalStatus",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "Gender",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "HireDate",
+        "type": "date",
+        "nullable": false
+      },
+      {
+        "name": "SalariedFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "VacationHours",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "SickLeaveHours",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "CurrentFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.Person(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.SalesOrderHeader": {
+    "description": "General information for customer sales orders.",
+    "columns": [
+      {
+        "name": "SalesOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "RevisionNumber",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "OrderDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "DueDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "ShipDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "Status",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "OnlineOrderFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "SalesOrderNumber",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "PurchaseOrderNumber",
+        "type": "OrderNumber",
+        "nullable": true
+      },
+      {
+        "name": "AccountNumber",
+        "type": "AccountNumber",
+        "nullable": true
+      },
+      {
+        "name": "CustomerID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "SalesPersonID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "BillToAddressID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ShipToAddressID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ShipMethodID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CreditCardID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "CreditCardApprovalCode",
+        "type": "varchar",
+        "nullable": true
+      },
+      {
+        "name": "CurrencyRateID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "SubTotal",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "TaxAmt",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "Freight",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "TotalDue",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "Comment",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SalesOrderID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ShipMethodID",
+        "references": "Purchasing.ShipMethod(ShipMethodID)"
+      },
+      {
+        "column": "BillToAddressID",
+        "references": "Person.Address(AddressID)"
+      },
+      {
+        "column": "ShipToAddressID",
+        "references": "Person.Address(AddressID)"
+      },
+      {
+        "column": "CreditCardID",
+        "references": "Sales.CreditCard(CreditCardID)"
+      },
+      {
+        "column": "CurrencyRateID",
+        "references": "Sales.CurrencyRate(CurrencyRateID)"
+      },
+      {
+        "column": "CustomerID",
+        "references": "Sales.Customer(CustomerID)"
+      },
+      {
+        "column": "SalesPersonID",
+        "references": "Sales.SalesPerson(BusinessEntityID)"
+      },
+      {
+        "column": "TerritoryID",
+        "references": "Sales.SalesTerritory(TerritoryID)"
+      }
+    ]
+  },
+  "HumanResources.EmployeeDepartmentHistory": {
+    "description": "Tracks employee movements between departments and shifts.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "DepartmentID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ShiftID",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "date",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "date",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "DepartmentID",
+      "ShiftID",
+      "StartDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ShiftID",
+        "references": "HumanResources.Shift(ShiftID)"
+      },
+      {
+        "column": "DepartmentID",
+        "references": "HumanResources.Department(DepartmentID)"
+      },
+      {
+        "column": "BusinessEntityID",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      }
+    ]
+  },
+  "HumanResources.EmployeePayHistory": {
+    "description": "Tracks employee salary and wage changes.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "RateChangeDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "Rate",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "PayFrequency",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "RateChangeDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.SalesOrderHeaderSalesReason": {
+    "description": "Links sales orders to the reasons they were placed.",
+    "columns": [
+      {
+        "name": "SalesOrderID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "SalesReasonID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SalesOrderID",
+      "SalesReasonID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "SalesOrderID",
+        "references": "Sales.SalesOrderHeader(SalesOrderID)"
+      },
+      {
+        "column": "SalesReasonID",
+        "references": "Sales.SalesReason(SalesReasonID)"
+      }
+    ]
+  },
+  "Sales.SalesPerson": {
+    "description": "Employees designated as sales representatives.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "SalesQuota",
+        "type": "money",
+        "nullable": true
+      },
+      {
+        "name": "Bonus",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "CommissionPct",
+        "type": "smallmoney",
+        "nullable": false
+      },
+      {
+        "name": "SalesYTD",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "SalesLastYear",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      },
+      {
+        "column": "TerritoryID",
+        "references": "Sales.SalesTerritory(TerritoryID)"
+      }
+    ]
+  },
+  "Production.Illustration": {
+    "description": "Product diagrams and illustrations in XML format.",
+    "columns": [
+      {
+        "name": "IllustrationID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Diagram",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "IllustrationID"
+    ],
+    "foreign_keys": []
+  },
+  "HumanResources.JobCandidate": {
+    "description": "Resumes and details for potential job hires.",
+    "columns": [
+      {
+        "name": "JobCandidateID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "Resume",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "JobCandidateID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "HumanResources.Employee(BusinessEntityID)"
+      }
+    ]
+  },
+  "Production.Location": {
+    "description": "Warehouse or manufacturing locations.",
+    "columns": [
+      {
+        "name": "LocationID",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "CostRate",
+        "type": "smallmoney",
+        "nullable": false
+      },
+      {
+        "name": "Availability",
+        "type": "decimal",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "LocationID"
+    ],
+    "foreign_keys": []
+  },
+  "Person.Password": {
+    "description": "Hashed passwords and salts for user accounts.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PasswordHash",
+        "type": "varchar",
+        "nullable": false
+      },
+      {
+        "name": "PasswordSalt",
+        "type": "varchar",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.Person(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.SalesPersonQuotaHistory": {
+    "description": "Historical records of sales quotas for sales staff.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "QuotaDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "SalesQuota",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "QuotaDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Sales.SalesPerson(BusinessEntityID)"
+      }
+    ]
+  },
+  "Person.Person": {
+    "description": "General personal information for individuals (employees, customers, etc.).",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PersonType",
+        "type": "nchar",
+        "nullable": false
+      },
+      {
+        "name": "NameStyle",
+        "type": "NameStyle",
+        "nullable": false
+      },
+      {
+        "name": "Title",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "FirstName",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "MiddleName",
+        "type": "Name",
+        "nullable": true
+      },
+      {
+        "name": "LastName",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "Suffix",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "EmailPromotion",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "AdditionalContactInfo",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "Demographics",
+        "type": "xml",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.BusinessEntity(BusinessEntityID)"
+      }
+    ]
+  },
+  "Sales.SalesReason": {
+    "description": "Lookup table for why customers purchase products (e.g., price, review).",
+    "columns": [
+      {
+        "name": "SalesReasonID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ReasonType",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SalesReasonID"
+    ],
+    "foreign_keys": []
+  },
+  "Sales.SalesTaxRate": {
+    "description": "Tax rates for specific state or province regions.",
+    "columns": [
+      {
+        "name": "SalesTaxRateID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StateProvinceID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "TaxType",
+        "type": "tinyint",
+        "nullable": false
+      },
+      {
+        "name": "TaxRate",
+        "type": "smallmoney",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "SalesTaxRateID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "StateProvinceID",
+        "references": "Person.StateProvince(StateProvinceID)"
+      }
+    ]
+  },
+  "Sales.PersonCreditCard": {
+    "description": "Links individuals to their credit cards.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "CreditCardID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "CreditCardID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "CreditCardID",
+        "references": "Sales.CreditCard(CreditCardID)"
+      },
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.Person(BusinessEntityID)"
+      }
+    ]
+  },
+  "Person.PersonPhone": {
+    "description": "Phone numbers associated with individuals.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "PhoneNumber",
+        "type": "Phone",
+        "nullable": false
+      },
+      {
+        "name": "PhoneNumberTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "PhoneNumber",
+      "PhoneNumberTypeID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Person.Person(BusinessEntityID)"
+      },
+      {
+        "column": "PhoneNumberTypeID",
+        "references": "Person.PhoneNumberType(PhoneNumberTypeID)"
+      }
+    ]
+  },
+  "Sales.SalesTerritory": {
+    "description": "Sales regions and their performance data.",
+    "columns": [
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "CountryRegionCode",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "Group",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "SalesYTD",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "SalesLastYear",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "CostYTD",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "CostLastYear",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "TerritoryID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "CountryRegionCode",
+        "references": "Person.CountryRegion(CountryRegionCode)"
+      }
+    ]
+  },
+  "Person.PhoneNumberType": {
+    "description": "Lookup table for phone number types (e.g., Cell, Home).",
+    "columns": [
+      {
+        "name": "PhoneNumberTypeID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "PhoneNumberTypeID"
+    ],
+    "foreign_keys": []
+  },
+  "Production.Product": {
+    "description": "Central catalog for all items manufactured, purchased, or sold.",
+    "columns": [
+      {
+        "name": "ProductID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "Name",
+        "type": "Name",
+        "nullable": false
+      },
+      {
+        "name": "ProductNumber",
+        "type": "nvarchar",
+        "nullable": false
+      },
+      {
+        "name": "MakeFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "FinishedGoodsFlag",
+        "type": "Flag",
+        "nullable": false
+      },
+      {
+        "name": "Color",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "SafetyStockLevel",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "ReorderPoint",
+        "type": "smallint",
+        "nullable": false
+      },
+      {
+        "name": "StandardCost",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "ListPrice",
+        "type": "money",
+        "nullable": false
+      },
+      {
+        "name": "Size",
+        "type": "nvarchar",
+        "nullable": true
+      },
+      {
+        "name": "SizeUnitMeasureCode",
+        "type": "nchar",
+        "nullable": true
+      },
+      {
+        "name": "WeightUnitMeasureCode",
+        "type": "nchar",
+        "nullable": true
+      },
+      {
+        "name": "Weight",
+        "type": "decimal",
+        "nullable": true
+      },
+      {
+        "name": "DaysToManufacture",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "ProductLine",
+        "type": "nchar",
+        "nullable": true
+      },
+      {
+        "name": "Class",
+        "type": "nchar",
+        "nullable": true
+      },
+      {
+        "name": "Style",
+        "type": "nchar",
+        "nullable": true
+      },
+      {
+        "name": "ProductSubcategoryID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "ProductModelID",
+        "type": "int",
+        "nullable": true
+      },
+      {
+        "name": "SellStartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "SellEndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "DiscontinuedDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "ProductID"
+    ],
+    "foreign_keys": [
+      {
+        "column": "ProductModelID",
+        "references": "Production.ProductModel(ProductModelID)"
+      },
+      {
+        "column": "ProductSubcategoryID",
+        "references": "Production.ProductSubcategory(ProductSubcategoryID)"
+      },
+      {
+        "column": "SizeUnitMeasureCode",
+        "references": "Production.UnitMeasure(UnitMeasureCode)"
+      },
+      {
+        "column": "WeightUnitMeasureCode",
+        "references": "Production.UnitMeasure(UnitMeasureCode)"
+      }
+    ]
+  },
+  "Sales.SalesTerritoryHistory": {
+    "description": "Tracks sales representatives' movements across territories.",
+    "columns": [
+      {
+        "name": "BusinessEntityID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "TerritoryID",
+        "type": "int",
+        "nullable": false
+      },
+      {
+        "name": "StartDate",
+        "type": "datetime",
+        "nullable": false
+      },
+      {
+        "name": "EndDate",
+        "type": "datetime",
+        "nullable": true
+      },
+      {
+        "name": "rowguid",
+        "type": "uniqueidentifier",
+        "nullable": false
+      },
+      {
+        "name": "ModifiedDate",
+        "type": "datetime",
+        "nullable": false
+      }
+    ],
+    "primary_keys": [
+      "BusinessEntityID",
+      "TerritoryID",
+      "StartDate"
+    ],
+    "foreign_keys": [
+      {
+        "column": "BusinessEntityID",
+        "references": "Sales.SalesPerson(BusinessEntityID)"
+      },
+      {
+        "column": "TerritoryID",
+        "references": "Sales.SalesTerritory(TerritoryID)"
+      }
+    ]
+  }
+}

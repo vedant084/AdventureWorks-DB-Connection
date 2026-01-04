@@ -1,0 +1,6 @@
+{
+  "embedding_model": "all-MiniLM-L6-v2",
+  "embedding_dimension": 384,
+  "total_tables": 71,
+  "created_from": "schema_indexer.py"
+}
