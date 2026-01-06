@@ -1,0 +1,1086 @@
+{
+  "Production.ScrapReason": {
+    "description": "A lookup table containing standardized reasons (e.g., 'Gouge in storage', 'Handling error') why a product was scrapped during the manufacturing process. It is used to categorize waste in work orders.",
+    "columns": [
+      { "name": "ScrapReasonID", "type": "smallint", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ScrapReasonID"],
+    "foreign_keys": []
+  },
+  "HumanResources.Shift": {
+    "description": "A lookup table defining company work shifts, including their specific start and end times. This allows the HR system to track employee attendance and department history across Day, Evening, or Night rotations.",
+    "columns": [
+      { "name": "ShiftID", "type": "tinyint", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "StartTime", "type": "time", "nullable": false },
+      { "name": "EndTime", "type": "time", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ShiftID"],
+    "foreign_keys": []
+  },
+  "Production.ProductCategory": {
+    "description": "The highest level of product classification. It categorizes items into broad groups like Bikes, Components, Clothing, or Accessories, serving as the parent for ProductSubcategory.",
+    "columns": [
+      { "name": "ProductCategoryID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductCategoryID"],
+    "foreign_keys": []
+  },
+  "Purchasing.ShipMethod": {
+    "description": "Defines the various shipping carriers and service levels (e.g., XRQ - AIR, ZARGO - TRUCK) used for both purchase orders to vendors and sales orders to customers, including base shipping costs and rates.",
+    "columns": [
+      { "name": "ShipMethodID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ShipBase", "type": "money", "nullable": false },
+      { "name": "ShipRate", "type": "money", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ShipMethodID"],
+    "foreign_keys": []
+  },
+  "Production.ProductCostHistory": {
+    "description": "Records the historical standard cost of products over time. This table is essential for financial auditing and tracking manufacturing cost fluctuations by maintaining a log of cost changes with start and end dates.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": true },
+      { "name": "StandardCost", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "StartDate"],
+    "foreign_keys": [{ "column": "ProductID", "references": "Production.Product(ProductID)" }]
+  },
+  "Production.ProductDescription": {
+    "description": "Stores text-based descriptions of products. These descriptions are unique identifiers that can be linked to different cultures/languages via the ProductModelProductDescriptionCulture table.",
+    "columns": [
+      { "name": "ProductDescriptionID", "type": "int", "nullable": false },
+      { "name": "Description", "type": "nvarchar", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductDescriptionID"],
+    "foreign_keys": []
+  },
+  "Sales.ShoppingCartItem": {
+    "description": "Contains items currently held in customer web sessions. It tracks the specific ProductID, quantity, and the time the item was added, acting as temporary storage before an order is finalized.",
+    "columns": [
+      { "name": "ShoppingCartItemID", "type": "int", "nullable": false },
+      { "name": "ShoppingCartID", "type": "nvarchar", "nullable": false },
+      { "name": "Quantity", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "DateCreated", "type": "datetime", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ShoppingCartItemID"],
+    "foreign_keys": [{ "column": "ProductID", "references": "Production.Product(ProductID)" }]
+  },
+  "Production.ProductDocument": {
+    "description": "A many-to-many mapping table that associates products with technical documentation, such as manuals, specifications, or safety sheets stored in the Document table.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "DocumentNode", "type": "hierarchyid", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "DocumentNode"],
+    "foreign_keys": [
+      { "column": "DocumentNode", "references": "Production.Document(DocumentNode)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "dbo.DatabaseLog": {
+    "description": "A system-wide audit trail that logs Data Definition Language (DDL) changes. It captures who made a change, when, and the specific T-SQL command executed, as well as the XML event data for database schema modifications.",
+    "columns": [
+      { "name": "DatabaseLogID", "type": "int", "nullable": false },
+      { "name": "PostTime", "type": "datetime", "nullable": false },
+      { "name": "DatabaseUser", "type": "sysname", "nullable": false },
+      { "name": "Event", "type": "sysname", "nullable": false },
+      { "name": "Schema", "type": "sysname", "nullable": true },
+      { "name": "Object", "type": "sysname", "nullable": true },
+      { "name": "TSQL", "type": "nvarchar", "nullable": false },
+      { "name": "XmlEvent", "type": "xml", "nullable": false }
+    ],
+    "primary_keys": ["DatabaseLogID"],
+    "foreign_keys": []
+  },
+  "Production.ProductInventory": {
+    "description": "Tracks the physical location and quantity of products within the warehouse. It details the specific Shelf and Bin for every ProductID at a given LocationID to manage stock levels effectively.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "LocationID", "type": "smallint", "nullable": false },
+      { "name": "Shelf", "type": "nvarchar", "nullable": false },
+      { "name": "Bin", "type": "tinyint", "nullable": false },
+      { "name": "Quantity", "type": "smallint", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "LocationID"],
+    "foreign_keys": [
+      { "column": "LocationID", "references": "Production.Location(LocationID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Sales.SpecialOffer": {
+    "description": "Defines marketing promotions, seasonal sales, and volume discounts. It includes the discount percentage, the type of category (e.g., Reseller, Customer), and the validity dates and quantity limits for each offer.",
+    "columns": [
+      { "name": "SpecialOfferID", "type": "int", "nullable": false },
+      { "name": "Description", "type": "nvarchar", "nullable": false },
+      { "name": "DiscountPct", "type": "smallmoney", "nullable": false },
+      { "name": "Type", "type": "nvarchar", "nullable": false },
+      { "name": "Category", "type": "nvarchar", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": false },
+      { "name": "MinQty", "type": "int", "nullable": false },
+      { "name": "MaxQty", "type": "int", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SpecialOfferID"],
+    "foreign_keys": []
+  },
+  "dbo.ErrorLog": {
+    "description": "A centralized log for recording database-level errors. It captures the error number, severity, state, the specific stored procedure or line number where the failure occurred, and the descriptive error message for troubleshooting.",
+    "columns": [
+      { "name": "ErrorLogID", "type": "int", "nullable": false },
+      { "name": "ErrorTime", "type": "datetime", "nullable": false },
+      { "name": "UserName", "type": "sysname", "nullable": false },
+      { "name": "ErrorNumber", "type": "int", "nullable": false },
+      { "name": "ErrorSeverity", "type": "int", "nullable": true },
+      { "name": "ErrorState", "type": "int", "nullable": true },
+      { "name": "ErrorProcedure", "type": "nvarchar", "nullable": true },
+      { "name": "ErrorLine", "type": "int", "nullable": true },
+      { "name": "ErrorMessage", "type": "nvarchar", "nullable": false }
+    ],
+    "primary_keys": ["ErrorLogID"],
+    "foreign_keys": []
+  },
+  "Production.ProductListPriceHistory": {
+    "description": "Maintains a chronological record of the retail (list) prices for products. This allows the business to analyze pricing trends and retrieve what the advertised price was for any product at a specific historical date.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": true },
+      { "name": "ListPrice", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "StartDate"],
+    "foreign_keys": [{ "column": "ProductID", "references": "Production.Product(ProductID)" }]
+  },
+  "Person.Address": {
+    "description": "A master table of physical locations for all entities in the database. It stores street-level details, city, postal code, and spatial coordinates, linked to states and provinces.",
+    "columns": [
+      { "name": "AddressID", "type": "int", "nullable": false },
+      { "name": "AddressLine1", "type": "nvarchar", "nullable": false },
+      { "name": "AddressLine2", "type": "nvarchar", "nullable": true },
+      { "name": "City", "type": "nvarchar", "nullable": false },
+      { "name": "StateProvinceID", "type": "int", "nullable": false },
+      { "name": "PostalCode", "type": "nvarchar", "nullable": false },
+      { "name": "SpatialLocation", "type": "geography", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["AddressID"],
+    "foreign_keys": [{ "column": "StateProvinceID", "references": "Person.StateProvince(StateProvinceID)" }]
+  },
+  "Sales.SpecialOfferProduct": {
+    "description": "A bridge table that manages the relationship between Products and Special Offers. It identifies which specific items qualify for which promotions, enabling a many-to-many relationship.",
+    "columns": [
+      { "name": "SpecialOfferID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SpecialOfferID", "ProductID"],
+    "foreign_keys": [
+      { "column": "SpecialOfferID", "references": "Sales.SpecialOffer(SpecialOfferID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Production.ProductModel": {
+    "description": "Categorizes products into high-level models (e.g., 'Mountain-100'). It stores marketing-focused data including XML-based catalog descriptions and technical assembly instructions for that specific model line.",
+    "columns": [
+      { "name": "ProductModelID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "CatalogDescription", "type": "xml", "nullable": true },
+      { "name": "Instructions", "type": "xml", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductModelID"],
+    "foreign_keys": []
+  },
+  "Person.AddressType": {
+    "description": "A lookup table defining the role of an address, such as 'Billing', 'Home', 'Main Office', or 'Shipping'. This categorization helps identify how to use an address for a specific BusinessEntity.",
+    "columns": [
+      { "name": "AddressTypeID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["AddressTypeID"],
+    "foreign_keys": []
+  },
+  "Person.StateProvince": {
+    "description": "A lookup table for geographical states, provinces, or territories. It links specific regions to their parent CountryRegion and assigns them to a SalesTerritory for regional reporting.",
+    "columns": [
+      { "name": "StateProvinceID", "type": "int", "nullable": false },
+      { "name": "StateProvinceCode", "type": "nchar", "nullable": false },
+      { "name": "CountryRegionCode", "type": "nvarchar", "nullable": false },
+      { "name": "IsOnlyStateProvinceFlag", "type": "Flag", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "TerritoryID", "type": "int", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["StateProvinceID"],
+    "foreign_keys": [
+      { "column": "CountryRegionCode", "references": "Person.CountryRegion(CountryRegionCode)" },
+      { "column": "TerritoryID", "references": "Sales.SalesTerritory(TerritoryID)" }
+    ]
+  },
+  "Production.ProductModelIllustration": {
+    "description": "A join table linking ProductModels to specific diagrams or graphic illustrations. It allows one model to have multiple illustrations and vice versa.",
+    "columns": [
+      { "name": "ProductModelID", "type": "int", "nullable": false },
+      { "name": "IllustrationID", "type": "int", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductModelID", "IllustrationID"],
+    "foreign_keys": [
+      { "column": "ProductModelID", "references": "Production.ProductModel(ProductModelID)" },
+      { "column": "IllustrationID", "references": "Production.Illustration(IllustrationID)" }
+    ]
+  },
+  "dbo.AWBuildVersion": {
+    "description": "Maintains metadata about the AdventureWorks database itself, including the current version number and the date of the last build or schema update.",
+    "columns": [
+      { "name": "SystemInformationID", "type": "tinyint", "nullable": false },
+      { "name": "Database Version", "type": "nvarchar", "nullable": false },
+      { "name": "VersionDate", "type": "datetime", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SystemInformationID"],
+    "foreign_keys": []
+  },
+  "Production.ProductModelProductDescriptionCulture": {
+    "description": "An association table that maps product models to specific localized descriptions. It ensures that the correct product text is displayed based on the user's culture (language/region).",
+    "columns": [
+      { "name": "ProductModelID", "type": "int", "nullable": false },
+      { "name": "ProductDescriptionID", "type": "int", "nullable": false },
+      { "name": "CultureID", "type": "nchar", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductModelID", "ProductDescriptionID", "CultureID"],
+    "foreign_keys": [
+      { "column": "ProductDescriptionID", "references": "Production.ProductDescription(ProductDescriptionID)" },
+      { "column": "ProductModelID", "references": "Production.ProductModel(ProductModelID)" },
+      { "column": "CultureID", "references": "Production.Culture(CultureID)" }
+    ]
+  },
+  "Production.BillOfMaterials": {
+    "description": "Defines the parent-child assembly structure for manufactured products. It details which components (and in what quantity) are required to build a finished assembly, including the hierarchical level and effective dates.",
+    "columns": [
+      { "name": "BillOfMaterialsID", "type": "int", "nullable": false },
+      { "name": "ProductAssemblyID", "type": "int", "nullable": true },
+      { "name": "ComponentID", "type": "int", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": true },
+      { "name": "UnitMeasureCode", "type": "nchar", "nullable": false },
+      { "name": "BOMLevel", "type": "smallint", "nullable": false },
+      { "name": "PerAssemblyQty", "type": "decimal", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BillOfMaterialsID"],
+    "foreign_keys": [
+      { "column": "UnitMeasureCode", "references": "Production.UnitMeasure(UnitMeasureCode)" },
+      { "column": "ProductAssemblyID", "references": "Production.Product(ProductID)" },
+      { "column": "ComponentID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Sales.Store": {
+    "description": "Contains details about customers that are businesses (retail stores). It links to a primary BusinessEntity and tracks associated Sales Representatives and XML-based store demographics like revenue and size.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "SalesPersonID", "type": "int", "nullable": true },
+      { "name": "Demographics", "type": "xml", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [
+      { "column": "BusinessEntityID", "references": "Person.BusinessEntity(BusinessEntityID)" },
+      { "column": "SalesPersonID", "references": "Sales.SalesPerson(BusinessEntityID)" }
+    ]
+  },
+  "Production.ProductPhoto": {
+    "description": "A repository for product imagery. It stores actual binary image data for both thumbnails and large photos, along with their respective filenames for web and catalog display.",
+    "columns": [
+      { "name": "ProductPhotoID", "type": "int", "nullable": false },
+      { "name": "ThumbNailPhoto", "type": "varbinary", "nullable": true },
+      { "name": "ThumbnailPhotoFileName", "type": "nvarchar", "nullable": true },
+      { "name": "LargePhoto", "type": "varbinary", "nullable": true },
+      { "name": "LargePhotoFileName", "type": "nvarchar", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductPhotoID"],
+    "foreign_keys": []
+  },
+  "Production.ProductProductPhoto": {
+    "description": "Maps products to their available photos. It includes a 'Primary' flag to designate which image should be used as the default display for the product in the storefront.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "ProductPhotoID", "type": "int", "nullable": false },
+      { "name": "Primary", "type": "Flag", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "ProductPhotoID"],
+    "foreign_keys": [
+      { "column": "ProductPhotoID", "references": "Production.ProductPhoto(ProductPhotoID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Production.TransactionHistory": {
+    "description": "A real-time ledger of all inventory movements. It tracks increases and decreases in stock caused by sales, purchases, or manufacturing, including the quantity and the actual cost at the time of transaction.",
+    "columns": [
+      { "name": "TransactionID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "ReferenceOrderID", "type": "int", "nullable": false },
+      { "name": "ReferenceOrderLineID", "type": "int", "nullable": false },
+      { "name": "TransactionDate", "type": "datetime", "nullable": false },
+      { "name": "TransactionType", "type": "nchar", "nullable": false },
+      { "name": "Quantity", "type": "int", "nullable": false },
+      { "name": "ActualCost", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["TransactionID"],
+    "foreign_keys": [{ "column": "ProductID", "references": "Production.Product(ProductID)" }]
+  },
+  "Production.ProductReview": {
+    "description": "Stores feedback provided by customers regarding specific products. It captures the reviewer's name, email, the date of the review, a numerical rating (1-5), and their text comments.",
+    "columns": [
+      { "name": "ProductReviewID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "ReviewerName", "type": "Name", "nullable": false },
+      { "name": "ReviewDate", "type": "datetime", "nullable": false },
+      { "name": "EmailAddress", "type": "nvarchar", "nullable": false },
+      { "name": "Rating", "type": "int", "nullable": false },
+      { "name": "Comments", "type": "nvarchar", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductReviewID"],
+    "foreign_keys": [{ "column": "ProductID", "references": "Production.Product(ProductID)" }]
+  },
+  "Person.BusinessEntity": {
+    "description": "The root table for the entity-relationship model in AdventureWorks. It provides a unique global ID used by Persons, Vendors, and Stores, ensuring that an ID is never duplicated across different entity types.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": []
+  },
+  "Production.TransactionHistoryArchive": {
+    "description": "A long-term storage table for transaction records that have been moved out of the main TransactionHistory table. It is used for historical trend analysis and reporting without slowing down active inventory operations.",
+    "columns": [
+      { "name": "TransactionID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "ReferenceOrderID", "type": "int", "nullable": false },
+      { "name": "ReferenceOrderLineID", "type": "int", "nullable": false },
+      { "name": "TransactionDate", "type": "datetime", "nullable": false },
+      { "name": "TransactionType", "type": "nchar", "nullable": false },
+      { "name": "Quantity", "type": "int", "nullable": false },
+      { "name": "ActualCost", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["TransactionID"],
+    "foreign_keys": []
+  },
+  "Production.ProductSubcategory": {
+    "description": "A secondary classification for products (e.g., 'Mountain Bikes', 'Road Bikes'). Every subcategory belongs to a parent ProductCategory, allowing for structured navigation and reporting.",
+    "columns": [
+      { "name": "ProductSubcategoryID", "type": "int", "nullable": false },
+      { "name": "ProductCategoryID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductSubcategoryID"],
+    "foreign_keys": [{ "column": "ProductCategoryID", "references": "Production.ProductCategory(ProductCategoryID)" }]
+  },
+  "Person.BusinessEntityAddress": {
+    "description": "A cross-reference table that connects Business Entities (people or companies) to their physical addresses and defines the type of each address (e.g., this is BusinessEntity 5's Home address).",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "AddressID", "type": "int", "nullable": false },
+      { "name": "AddressTypeID", "type": "int", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "AddressID", "AddressTypeID"],
+    "foreign_keys": [
+      { "column": "AddressID", "references": "Person.Address(AddressID)" },
+      { "column": "AddressTypeID", "references": "Person.AddressType(AddressTypeID)" },
+      { "column": "BusinessEntityID", "references": "Person.BusinessEntity(BusinessEntityID)" }
+    ]
+  },
+  "Purchasing.ProductVendor": {
+    "description": "Contains procurement details for products supplied by external vendors. It includes critical purchasing data like average lead time, standard price, minimum/maximum order quantities, and unit of measure.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "AverageLeadTime", "type": "int", "nullable": false },
+      { "name": "StandardPrice", "type": "money", "nullable": false },
+      { "name": "LastReceiptCost", "type": "money", "nullable": true },
+      { "name": "LastReceiptDate", "type": "datetime", "nullable": true },
+      { "name": "MinOrderQty", "type": "int", "nullable": false },
+      { "name": "MaxOrderQty", "type": "int", "nullable": false },
+      { "name": "OnOrderQty", "type": "int", "nullable": true },
+      { "name": "UnitMeasureCode", "type": "nchar", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID", "BusinessEntityID"],
+    "foreign_keys": [
+      { "column": "UnitMeasureCode", "references": "Production.UnitMeasure(UnitMeasureCode)" },
+      { "column": "BusinessEntityID", "references": "Purchasing.Vendor(BusinessEntityID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Person.BusinessEntityContact": {
+    "description": "Associates Business Entities (like a Store or Vendor) with specific individual Persons who act as their contacts (e.g., 'John Doe' is the 'Purchasing Manager' for 'Store X').",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "PersonID", "type": "int", "nullable": false },
+      { "name": "ContactTypeID", "type": "int", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "PersonID", "ContactTypeID"],
+    "foreign_keys": [
+      { "column": "BusinessEntityID", "references": "Person.BusinessEntity(BusinessEntityID)" },
+      { "column": "ContactTypeID", "references": "Person.ContactType(ContactTypeID)" },
+      { "column": "PersonID", "references": "Person.Person(BusinessEntityID)" }
+    ]
+  },
+  "Production.UnitMeasure": {
+    "description": "A lookup table defining standardized units for measuring product dimensions, weight, or quantity, such as 'EA' (Each), 'KG' (Kilograms), or 'FT' (Feet).",
+    "columns": [
+      { "name": "UnitMeasureCode", "type": "nchar", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["UnitMeasureCode"],
+    "foreign_keys": []
+  },
+  "Purchasing.Vendor": {
+    "description": "Stores organizational details for companies that supply parts or products. It includes their unique account number, credit rating (1=Superior to 5=Poor), and whether they are a preferred partner.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "AccountNumber", "type": "AccountNumber", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "CreditRating", "type": "tinyint", "nullable": false },
+      { "name": "PreferredVendorStatus", "type": "Flag", "nullable": false },
+      { "name": "ActiveFlag", "type": "Flag", "nullable": false },
+      { "name": "PurchasingWebServiceURL", "type": "nvarchar", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Person.BusinessEntity(BusinessEntityID)" }]
+  },
+  "Person.ContactType": {
+    "description": "A lookup table for the roles individuals play when contacting the company, such as 'Accounting Manager', 'Sales Agent', or 'Owner'.",
+    "columns": [
+      { "name": "ContactTypeID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ContactTypeID"],
+    "foreign_keys": []
+  },
+  "Sales.CountryRegionCurrency": {
+    "description": "Links a Country/Region to its standard ISO currency code. This is used to determine which currency should be applied to transactions based on the customer's or branch's location.",
+    "columns": [
+      { "name": "CountryRegionCode", "type": "nvarchar", "nullable": false },
+      { "name": "CurrencyCode", "type": "nchar", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CountryRegionCode", "CurrencyCode"],
+    "foreign_keys": [
+      { "column": "CountryRegionCode", "references": "Person.CountryRegion(CountryRegionCode)" },
+      { "column": "CurrencyCode", "references": "Sales.Currency(CurrencyCode)" }
+    ]
+  },
+  "Person.CountryRegion": {
+    "description": "Stores standardized ISO country and region codes along with their full names. It acts as the parent geography table for states, provinces, and sales territories.",
+    "columns": [
+      { "name": "CountryRegionCode", "type": "nvarchar", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CountryRegionCode"],
+    "foreign_keys": []
+  },
+  "Production.WorkOrder": {
+    "description": "The primary record for manufacturing a specific product. It tracks the required quantity, the quantity successfully stocked, the quantity scrapped (with reasons), and the key start, due, and end dates.",
+    "columns": [
+      { "name": "WorkOrderID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "OrderQty", "type": "int", "nullable": false },
+      { "name": "StockedQty", "type": "int", "nullable": false },
+      { "name": "ScrappedQty", "type": "smallint", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": true },
+      { "name": "DueDate", "type": "datetime", "nullable": false },
+      { "name": "ScrapReasonID", "type": "smallint", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["WorkOrderID"],
+    "foreign_keys": [
+      { "column": "ScrapReasonID", "references": "Production.ScrapReason(ScrapReasonID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Purchasing.PurchaseOrderDetail": {
+    "description": "Contains line items for each PurchaseOrderHeader. It records specific product IDs, quantities ordered, unit prices, and tracks receiving progress via 'ReceivedQty' and 'RejectedQty'.",
+    "columns": [
+      { "name": "PurchaseOrderID", "type": "int", "nullable": false },
+      { "name": "PurchaseOrderDetailID", "type": "int", "nullable": false },
+      { "name": "DueDate", "type": "datetime", "nullable": false },
+      { "name": "OrderQty", "type": "smallint", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "UnitPrice", "type": "money", "nullable": false },
+      { "name": "LineTotal", "type": "money", "nullable": false },
+      { "name": "ReceivedQty", "type": "decimal", "nullable": false },
+      { "name": "RejectedQty", "type": "decimal", "nullable": false },
+      { "name": "StockedQty", "type": "decimal", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["PurchaseOrderID", "PurchaseOrderDetailID"],
+    "foreign_keys": [
+      { "column": "PurchaseOrderID", "references": "Purchasing.PurchaseOrderHeader(PurchaseOrderID)" },
+      { "column": "ProductID", "references": "Production.Product(ProductID)" }
+    ]
+  },
+  "Sales.CreditCard": {
+    "description": "Secure storage for customer credit card details, including the card type, masked card number, and expiration date. This data is sensitive and used for transaction processing.",
+    "columns": [
+      { "name": "CreditCardID", "type": "int", "nullable": false },
+      { "name": "CardType", "type": "nvarchar", "nullable": false },
+      { "name": "CardNumber", "type": "nvarchar", "nullable": false },
+      { "name": "ExpMonth", "type": "tinyint", "nullable": false },
+      { "name": "ExpYear", "type": "smallint", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CreditCardID"],
+    "foreign_keys": []
+  },
+  "Production.Culture": {
+    "description": "A lookup table for localization settings. It defines unique IDs for different languages and regions (e.g., 'en' for English, 'fr' for French) used to map localized product descriptions.",
+    "columns": [
+      { "name": "CultureID", "type": "nchar", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CultureID"],
+    "foreign_keys": []
+  },
+  "Production.WorkOrderRouting": {
+    "description": "Outlines the specific manufacturing steps (routing) required for a work order. It tracks the sequence of operations, the manufacturing location (e.g., 'Frame Press'), and the planned vs. actual costs and resource hours.",
+    "columns": [
+      { "name": "WorkOrderID", "type": "int", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "OperationSequence", "type": "smallint", "nullable": false },
+      { "name": "LocationID", "type": "smallint", "nullable": false },
+      { "name": "ScheduledStartDate", "type": "datetime", "nullable": false },
+      { "name": "ScheduledEndDate", "type": "datetime", "nullable": false },
+      { "name": "ActualStartDate", "type": "datetime", "nullable": true },
+      { "name": "ActualEndDate", "type": "datetime", "nullable": true },
+      { "name": "ActualResourceHrs", "type": "decimal", "nullable": true },
+      { "name": "PlannedCost", "type": "money", "nullable": false },
+      { "name": "ActualCost", "type": "money", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["WorkOrderID", "ProductID", "OperationSequence"],
+    "foreign_keys": [
+      { "column": "WorkOrderID", "references": "Production.WorkOrder(WorkOrderID)" },
+      { "column": "LocationID", "references": "Production.Location(LocationID)" }
+    ]
+  },
+  "Sales.Currency": {
+    "description": "A lookup table containing world currencies. It provides the ISO code and full name for each currency, supporting global sales and exchange rate tracking.",
+    "columns": [
+      { "name": "CurrencyCode", "type": "nchar", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CurrencyCode"],
+    "foreign_keys": []
+  },
+  "Purchasing.PurchaseOrderHeader": {
+    "description": "The top-level record for a purchase from a vendor. It summarizes the order status, total due (including tax and freight), the vendor involved, the employee who placed the order, and the shipping method.",
+    "columns": [
+      { "name": "PurchaseOrderID", "type": "int", "nullable": false },
+      { "name": "RevisionNumber", "type": "tinyint", "nullable": false },
+      { "name": "Status", "type": "tinyint", "nullable": false },
+      { "name": "EmployeeID", "type": "int", "nullable": false },
+      { "name": "VendorID", "type": "int", "nullable": false },
+      { "name": "ShipMethodID", "type": "int", "nullable": false },
+      { "name": "OrderDate", "type": "datetime", "nullable": false },
+      { "name": "ShipDate", "type": "datetime", "nullable": true },
+      { "name": "SubTotal", "type": "money", "nullable": false },
+      { "name": "TaxAmt", "type": "money", "nullable": false },
+      { "name": "Freight", "type": "money", "nullable": false },
+      { "name": "TotalDue", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["PurchaseOrderID"],
+    "foreign_keys": [
+      { "column": "ShipMethodID", "references": "Purchasing.ShipMethod(ShipMethodID)" },
+      { "column": "VendorID", "references": "Purchasing.Vendor(BusinessEntityID)" },
+      { "column": "EmployeeID", "references": "HumanResources.Employee(BusinessEntityID)" }
+    ]
+  },
+  "Sales.CurrencyRate": {
+    "description": "Records currency exchange rates for specific dates. It tracks the conversion from one currency code to another, providing both the average daily rate and the end-of-day rate for accounting.",
+    "columns": [
+      { "name": "CurrencyRateID", "type": "int", "nullable": false },
+      { "name": "CurrencyRateDate", "type": "datetime", "nullable": false },
+      { "name": "FromCurrencyCode", "type": "nchar", "nullable": false },
+      { "name": "ToCurrencyCode", "type": "nchar", "nullable": false },
+      { "name": "AverageRate", "type": "money", "nullable": false },
+      { "name": "EndOfDayRate", "type": "money", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CurrencyRateID"],
+    "foreign_keys": [
+      { "column": "FromCurrencyCode", "references": "Sales.Currency(CurrencyCode)" },
+      { "column": "ToCurrencyCode", "references": "Sales.Currency(CurrencyCode)" }
+    ]
+  },
+  "Sales.Customer": {
+    "description": "The primary customer table. A customer entry can link either to an individual 'Person' or to a 'Store' (business entity). It also assigns the customer to a specific Sales Territory for organizational purposes.",
+    "columns": [
+      { "name": "CustomerID", "type": "int", "nullable": false },
+      { "name": "PersonID", "type": "int", "nullable": true },
+      { "name": "StoreID", "type": "int", "nullable": true },
+      { "name": "TerritoryID", "type": "int", "nullable": true },
+      { "name": "AccountNumber", "type": "varchar", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["CustomerID"],
+    "foreign_keys": [
+      { "column": "StoreID", "references": "Sales.Store(BusinessEntityID)" },
+      { "column": "PersonID", "references": "Person.Person(BusinessEntityID)" },
+      { "column": "TerritoryID", "references": "Sales.SalesTerritory(TerritoryID)" }
+    ]
+  },
+  "HumanResources.Department": {
+    "description": "Defines organizational departments within the company (e.g., Executive, Tool Design, Sales). It groups these departments into larger 'GroupNames' like 'Manufacturing' or 'Corporate'.",
+    "columns": [
+      { "name": "DepartmentID", "type": "smallint", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "GroupName", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["DepartmentID"],
+    "foreign_keys": []
+  },
+  "Production.Document": {
+    "description": "A centralized table for technical documents and files. It uses a hierarchyid to organize documents in folders, and stores the actual file contents (as varbinary) along with metadata like status, owner, and revision.",
+    "columns": [
+      { "name": "DocumentNode", "type": "hierarchyid", "nullable": false },
+      { "name": "DocumentLevel", "type": "smallint", "nullable": true },
+      { "name": "Title", "type": "nvarchar", "nullable": false },
+      { "name": "Owner", "type": "int", "nullable": false },
+      { "name": "FolderFlag", "type": "bit", "nullable": false },
+      { "name": "FileName", "type": "nvarchar", "nullable": false },
+      { "name": "FileExtension", "type": "nvarchar", "nullable": false },
+      { "name": "Revision", "type": "nchar", "nullable": false },
+      { "name": "ChangeNumber", "type": "int", "nullable": false },
+      { "name": "Status", "type": "tinyint", "nullable": false },
+      { "name": "DocumentSummary", "type": "nvarchar", "nullable": true },
+      { "name": "Document", "type": "varbinary", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["DocumentNode"],
+    "foreign_keys": [{ "column": "Owner", "references": "HumanResources.Employee(BusinessEntityID)" }]
+  },
+  "Sales.SalesOrderDetail": {
+    "description": "Contains the individual line items for a sales order. It tracks the specific ProductID and SpecialOfferID applied, the quantity ordered, unit price, and calculates the LineTotal for each item.",
+    "columns": [
+      { "name": "SalesOrderID", "type": "int", "nullable": false },
+      { "name": "SalesOrderDetailID", "type": "int", "nullable": false },
+      { "name": "CarrierTrackingNumber", "type": "nvarchar", "nullable": true },
+      { "name": "OrderQty", "type": "smallint", "nullable": false },
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "SpecialOfferID", "type": "int", "nullable": false },
+      { "name": "UnitPrice", "type": "money", "nullable": false },
+      { "name": "UnitPriceDiscount", "type": "money", "nullable": false },
+      { "name": "LineTotal", "type": "numeric", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SalesOrderID", "SalesOrderDetailID"],
+    "foreign_keys": [
+      { "column": "SpecialOfferID", "references": "Sales.SpecialOfferProduct(SpecialOfferID)" },
+      { "column": "ProductID", "references": "Sales.SpecialOfferProduct(ProductID)" },
+      { "column": "SalesOrderID", "references": "Sales.SalesOrderHeader(SalesOrderID)" }
+    ]
+  },
+  "Person.EmailAddress": {
+    "description": "Stores email addresses associated with individuals. Multiple email addresses can be linked to a single BusinessEntityID by using the EmailAddressID as a secondary key.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "EmailAddressID", "type": "int", "nullable": false },
+      { "name": "EmailAddress", "type": "nvarchar", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "EmailAddressID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Person.Person(BusinessEntityID)" }]
+  },
+  "HumanResources.Employee": {
+    "description": "Internal employee records. Beyond basic identity, it stores sensitive and administrative data like National ID numbers, login credentials, job titles, birth dates, marital status, gender, and hire dates.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "NationalIDNumber", "type": "nvarchar", "nullable": false },
+      { "name": "LoginID", "type": "nvarchar", "nullable": false },
+      { "name": "OrganizationNode", "type": "hierarchyid", "nullable": true },
+      { "name": "OrganizationLevel", "type": "smallint", "nullable": true },
+      { "name": "JobTitle", "type": "nvarchar", "nullable": false },
+      { "name": "BirthDate", "type": "date", "nullable": false },
+      { "name": "MaritalStatus", "type": "nchar", "nullable": false },
+      { "name": "Gender", "type": "nchar", "nullable": false },
+      { "name": "HireDate", "type": "date", "nullable": false },
+      { "name": "SalariedFlag", "type": "Flag", "nullable": false },
+      { "name": "VacationHours", "type": "smallint", "nullable": false },
+      { "name": "SickLeaveHours", "type": "smallint", "nullable": false },
+      { "name": "CurrentFlag", "type": "Flag", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Person.Person(BusinessEntityID)" }]
+  },
+  "Sales.SalesOrderHeader": {
+    "description": "The main sales transaction record. It captures customer-specific data (IDs for Customer, SalesPerson, and Territory), financial summaries (SubTotal, Tax, Freight), and logistical data (Shipping methods and addresses).",
+    "columns": [
+      { "name": "SalesOrderID", "type": "int", "nullable": false },
+      { "name": "RevisionNumber", "type": "tinyint", "nullable": false },
+      { "name": "OrderDate", "type": "datetime", "nullable": false },
+      { "name": "DueDate", "type": "datetime", "nullable": false },
+      { "name": "ShipDate", "type": "datetime", "nullable": true },
+      { "name": "Status", "type": "tinyint", "nullable": false },
+      { "name": "OnlineOrderFlag", "type": "Flag", "nullable": false },
+      { "name": "SalesOrderNumber", "type": "nvarchar", "nullable": false },
+      { "name": "PurchaseOrderNumber", "type": "OrderNumber", "nullable": true },
+      { "name": "AccountNumber", "type": "AccountNumber", "nullable": true },
+      { "name": "CustomerID", "type": "int", "nullable": false },
+      { "name": "SalesPersonID", "type": "int", "nullable": true },
+      { "name": "TerritoryID", "type": "int", "nullable": true },
+      { "name": "BillToAddressID", "type": "int", "nullable": false },
+      { "name": "ShipToAddressID", "type": "int", "nullable": false },
+      { "name": "ShipMethodID", "type": "int", "nullable": false },
+      { "name": "CreditCardID", "type": "int", "nullable": true },
+      { "name": "CreditCardApprovalCode", "type": "varchar", "nullable": true },
+      { "name": "CurrencyRateID", "type": "int", "nullable": true },
+      { "name": "SubTotal", "type": "money", "nullable": false },
+      { "name": "TaxAmt", "type": "money", "nullable": false },
+      { "name": "Freight", "type": "money", "nullable": false },
+      { "name": "TotalDue", "type": "money", "nullable": false },
+      { "name": "Comment", "type": "nvarchar", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SalesOrderID"],
+    "foreign_keys": [
+      { "column": "ShipMethodID", "references": "Purchasing.ShipMethod(ShipMethodID)" },
+      { "column": "BillToAddressID", "references": "Person.Address(AddressID)" },
+      { "column": "ShipToAddressID", "references": "Person.Address(AddressID)" },
+      { "column": "CreditCardID", "references": "Sales.CreditCard(CreditCardID)" },
+      { "column": "CurrencyRateID", "references": "Sales.CurrencyRate(CurrencyRateID)" },
+      { "column": "CustomerID", "references": "Sales.Customer(CustomerID)" },
+      { "column": "SalesPersonID", "references": "Sales.SalesPerson(BusinessEntityID)" },
+      { "column": "TerritoryID", "references": "Sales.SalesTerritory(TerritoryID)" }
+    ]
+  },
+  "HumanResources.EmployeeDepartmentHistory": {
+    "description": "A movement log that tracks employee transfers between departments and shifts. It maintains a historical record of which department and shift an employee was assigned to during a specific date range.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "DepartmentID", "type": "smallint", "nullable": false },
+      { "name": "ShiftID", "type": "tinyint", "nullable": false },
+      { "name": "StartDate", "type": "date", "nullable": false },
+      { "name": "EndDate", "type": "date", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "DepartmentID", "ShiftID", "StartDate"],
+    "foreign_keys": [
+      { "column": "ShiftID", "references": "HumanResources.Shift(ShiftID)" },
+      { "column": "DepartmentID", "references": "HumanResources.Department(DepartmentID)" },
+      { "column": "BusinessEntityID", "references": "HumanResources.Employee(BusinessEntityID)" }
+    ]
+  },
+  "HumanResources.EmployeePayHistory": {
+    "description": "Tracks all salary and wage changes for employees. It stores the hourly or salary rate, the frequency of pay (e.g., bi-weekly), and the specific date the new rate took effect.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "RateChangeDate", "type": "datetime", "nullable": false },
+      { "name": "Rate", "type": "money", "nullable": false },
+      { "name": "PayFrequency", "type": "tinyint", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "RateChangeDate"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "HumanResources.Employee(BusinessEntityID)" }]
+  },
+  "Sales.SalesOrderHeaderSalesReason": {
+    "description": "An association table that links a specific Sales Order to one or more Sales Reasons. This helps the marketing team analyze why orders were placed (e.g., 'On Sale', 'Television Advertisement').",
+    "columns": [
+      { "name": "SalesOrderID", "type": "int", "nullable": false },
+      { "name": "SalesReasonID", "type": "int", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SalesOrderID", "SalesReasonID"],
+    "foreign_keys": [
+      { "column": "SalesOrderID", "references": "Sales.SalesOrderHeader(SalesOrderID)" },
+      { "column": "SalesReasonID", "references": "Sales.SalesReason(SalesReasonID)" }
+    ]
+  },
+  "Sales.SalesPerson": {
+    "description": "Identifies employees who are sales representatives. It tracks their current sales territory, their financial quota, bonus earnings, commission percentage, and actual sales performance for both the current and previous year.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "TerritoryID", "type": "int", "nullable": true },
+      { "name": "SalesQuota", "type": "money", "nullable": true },
+      { "name": "Bonus", "type": "money", "nullable": false },
+      { "name": "CommissionPct", "type": "smallmoney", "nullable": false },
+      { "name": "SalesYTD", "type": "money", "nullable": false },
+      { "name": "SalesLastYear", "type": "money", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [
+      { "column": "BusinessEntityID", "references": "HumanResources.Employee(BusinessEntityID)" },
+      { "column": "TerritoryID", "references": "Sales.SalesTerritory(TerritoryID)" }
+    ]
+  },
+  "Production.Illustration": {
+    "description": "Stores graphical product information. It contains the actual XML-based diagram data for technical drawings and marketing illustrations.",
+    "columns": [
+      { "name": "IllustrationID", "type": "int", "nullable": false },
+      { "name": "Diagram", "type": "xml", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["IllustrationID"],
+    "foreign_keys": []
+  },
+  "HumanResources.JobCandidate": {
+    "description": "Manages information for prospective hires. It stores the candidate's full resume in XML format and, if hired, links the record to their new Employee BusinessEntityID.",
+    "columns": [
+      { "name": "JobCandidateID", "type": "int", "nullable": false },
+      { "name": "BusinessEntityID", "type": "int", "nullable": true },
+      { "name": "Resume", "type": "xml", "nullable": true },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["JobCandidateID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "HumanResources.Employee(BusinessEntityID)" }]
+  },
+  "Production.Location": {
+    "description": "Defines physical work or storage areas within the facility (e.g., 'Paint Shop', 'Subassembly'). It assigns a cost rate and availability percentage to each location for production scheduling.",
+    "columns": [
+      { "name": "LocationID", "type": "smallint", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "CostRate", "type": "smallmoney", "nullable": false },
+      { "name": "Availability", "type": "decimal", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["LocationID"],
+    "foreign_keys": []
+  },
+  "Person.Password": {
+    "description": "Stores user authentication credentials. For security, it contains the hashed version of the password and the specific salt used during the hashing process, linked to an individual's BusinessEntityID.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "PasswordHash", "type": "varchar", "nullable": false },
+      { "name": "PasswordSalt", "type": "varchar", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Person.Person(BusinessEntityID)" }]
+  },
+  "Sales.SalesPersonQuotaHistory": {
+    "description": "Maintains a chronological record of sales quotas assigned to sales representatives. This allows for historical performance analysis by comparing actual sales against past targets.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "QuotaDate", "type": "datetime", "nullable": false },
+      { "name": "SalesQuota", "type": "money", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "QuotaDate"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Sales.SalesPerson(BusinessEntityID)" }]
+  },
+  "Person.Person": {
+    "description": "Primary identity table for all individuals including employees, customers, and contacts. It stores names (First, Middle, Last), titles, suffixes, and XML demographics like marital status and yearly income.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "PersonType", "type": "nchar", "nullable": false },
+      { "name": "NameStyle", "type": "NameStyle", "nullable": false },
+      { "name": "Title", "type": "nvarchar", "nullable": true },
+      { "name": "FirstName", "type": "Name", "nullable": false },
+      { "name": "MiddleName", "type": "Name", "nullable": true },
+      { "name": "LastName", "type": "Name", "nullable": false },
+      { "name": "Suffix", "type": "nvarchar", "nullable": true },
+      { "name": "EmailPromotion", "type": "int", "nullable": false },
+      { "name": "AdditionalContactInfo", "type": "xml", "nullable": true },
+      { "name": "Demographics", "type": "xml", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID"],
+    "foreign_keys": [{ "column": "BusinessEntityID", "references": "Person.BusinessEntity(BusinessEntityID)" }]
+  },
+  "Sales.SalesReason": {
+    "description": "A lookup table of reasons why a customer might choose to purchase a product. Reasons are categorized by 'ReasonType' (e.g., 'Marketing', 'Other') and given names like 'Price' or 'Review'.",
+    "columns": [
+      { "name": "SalesReasonID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ReasonType", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SalesReasonID"],
+    "foreign_keys": []
+  },
+  "Sales.SalesTaxRate": {
+    "description": "Stores tax rate information for specific geographic regions. It links a tax percentage to a StateProvinceID and defines the type of tax being applied (e.g., State or Local tax).",
+    "columns": [
+      { "name": "SalesTaxRateID", "type": "int", "nullable": false },
+      { "name": "StateProvinceID", "type": "int", "nullable": false },
+      { "name": "TaxType", "type": "tinyint", "nullable": false },
+      { "name": "TaxRate", "type": "smallmoney", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["SalesTaxRateID"],
+    "foreign_keys": [{ "column": "StateProvinceID", "references": "Person.StateProvince(StateProvinceID)" }]
+  },
+  "Sales.PersonCreditCard": {
+    "description": "A join table that links a specific individual (Person) to one or more Credit Cards. This allows a customer to store multiple payment methods in their profile.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "CreditCardID", "type": "int", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "CreditCardID"],
+    "foreign_keys": [
+      { "column": "CreditCardID", "references": "Sales.CreditCard(CreditCardID)" },
+      { "column": "BusinessEntityID", "references": "Person.Person(BusinessEntityID)" }
+    ]
+  },
+  "Person.PersonPhone": {
+    "description": "Associates phone numbers with individuals. It stores the phone number itself and links it to a specific type (e.g., 'Work', 'Home') using the PhoneNumberTypeID.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "PhoneNumber", "type": "Phone", "nullable": false },
+      { "name": "PhoneNumberTypeID", "type": "int", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "PhoneNumber", "PhoneNumberTypeID"],
+    "foreign_keys": [
+      { "column": "BusinessEntityID", "references": "Person.Person(BusinessEntityID)" },
+      { "column": "PhoneNumberTypeID", "references": "Person.PhoneNumberType(PhoneNumberTypeID)" }
+    ]
+  },
+  "Sales.SalesTerritory": {
+    "description": "Defines global sales regions (e.g., 'Northwest', 'France'). It tracks YTD and historical sales/cost performance for the territory and groups them into larger regions like 'North America' or 'Europe'.",
+    "columns": [
+      { "name": "TerritoryID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "CountryRegionCode", "type": "nvarchar", "nullable": false },
+      { "name": "Group", "type": "nvarchar", "nullable": false },
+      { "name": "SalesYTD", "type": "money", "nullable": false },
+      { "name": "SalesLastYear", "type": "money", "nullable": false },
+      { "name": "CostYTD", "type": "money", "nullable": false },
+      { "name": "CostLastYear", "type": "money", "nullable": false },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["TerritoryID"],
+    "foreign_keys": [{ "column": "CountryRegionCode", "references": "Person.CountryRegion(CountryRegionCode)" }]
+  },
+  "Person.PhoneNumberType": {
+    "description": "A lookup table for categorizing phone numbers. It contains the standard labels for contact numbers, such as 'Cell', 'Home', and 'Work'.",
+    "columns": [
+      { "name": "PhoneNumberTypeID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["PhoneNumberTypeID"],
+    "foreign_keys": []
+  },
+  "Production.Product": {
+    "description": "The central product master table. It stores physical attributes (Weight, Size, Color), financial data (Cost, List Price), and manufacturing flags for every item in the system. It links to models and subcategories.",
+    "columns": [
+      { "name": "ProductID", "type": "int", "nullable": false },
+      { "name": "Name", "type": "Name", "nullable": false },
+      { "name": "ProductNumber", "type": "nvarchar", "nullable": false },
+      { "name": "MakeFlag", "type": "Flag", "nullable": false },
+      { "name": "FinishedGoodsFlag", "type": "Flag", "nullable": false },
+      { "name": "Color", "type": "nvarchar", "nullable": true },
+      { "name": "SafetyStockLevel", "type": "smallint", "nullable": false },
+      { "name": "ReorderPoint", "type": "smallint", "nullable": false },
+      { "name": "StandardCost", "type": "money", "nullable": false },
+      { "name": "ListPrice", "type": "money", "nullable": false },
+      { "name": "Size", "type": "nvarchar", "nullable": true },
+      { "name": "SizeUnitMeasureCode", "type": "nchar", "nullable": true },
+      { "name": "WeightUnitMeasureCode", "type": "nchar", "nullable": true },
+      { "name": "Weight", "type": "decimal", "nullable": true },
+      { "name": "DaysToManufacture", "type": "int", "nullable": false },
+      { "name": "ProductLine", "type": "nchar", "nullable": true },
+      { "name": "Class", "type": "nchar", "nullable": true },
+      { "name": "Style", "type": "nchar", "nullable": true },
+      { "name": "ProductSubcategoryID", "type": "int", "nullable": true },
+      { "name": "ProductModelID", "type": "int", "nullable": true },
+      { "name": "SellStartDate", "type": "datetime", "nullable": false },
+      { "name": "SellEndDate", "type": "datetime", "nullable": true },
+      { "name": "DiscontinuedDate", "type": "datetime", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["ProductID"],
+    "foreign_keys": [
+      { "column": "ProductModelID", "references": "Production.ProductModel(ProductModelID)" },
+      { "column": "ProductSubcategoryID", "references": "Production.ProductSubcategory(ProductSubcategoryID)" },
+      { "column": "SizeUnitMeasureCode", "references": "Production.UnitMeasure(UnitMeasureCode)" },
+      { "column": "WeightUnitMeasureCode", "references": "Production.UnitMeasure(UnitMeasureCode)" }
+    ]
+  },
+  "Sales.SalesTerritoryHistory": {
+    "description": "A movement log that tracks when Sales Persons are assigned to or removed from specific Sales Territories, allowing the company to audit territory coverage over time.",
+    "columns": [
+      { "name": "BusinessEntityID", "type": "int", "nullable": false },
+      { "name": "TerritoryID", "type": "int", "nullable": false },
+      { "name": "StartDate", "type": "datetime", "nullable": false },
+      { "name": "EndDate", "type": "datetime", "nullable": true },
+      { "name": "rowguid", "type": "uniqueidentifier", "nullable": false },
+      { "name": "ModifiedDate", "type": "datetime", "nullable": false }
+    ],
+    "primary_keys": ["BusinessEntityID", "TerritoryID", "StartDate"],
+    "foreign_keys": [
+      { "column": "BusinessEntityID", "references": "Sales.SalesPerson(BusinessEntityID)" },
+      { "column": "TerritoryID", "references": "Sales.SalesTerritory(TerritoryID)" }
+    ]
+  }
+}
