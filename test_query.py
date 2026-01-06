@@ -12,9 +12,9 @@ import os
 class DatabaseRAGChatbot:
     def __init__(
         self,
-        index_dir: str = './schema_index',
-        ollama_url: str = "http://localhost:11434",
-        model: str = "mistral"
+        index_dir: str = 'C:/AdventureWorksRAG/schema_index',
+        ollama_url: str = "http://127.0.0.1:11434",
+        model: str = "qwen2.5-coder:latest"
     ):
         self.ollama_url = ollama_url
         self.model = model
@@ -26,7 +26,6 @@ class DatabaseRAGChatbot:
     def _load_index(self, index_dir: str) -> None:
         print(f"\nLoading schema index from: {index_dir}")
         
-        # Load table index
         index_file = os.path.join(index_dir, 'table_index.json')
         if not os.path.exists(index_file):
             raise FileNotFoundError(f"Index file not found: {index_file}")
@@ -54,7 +53,7 @@ class DatabaseRAGChatbot:
             print(f"Loaded metadata")
         
         # Initialize embedding model for query encoding
-        print(f"  Loading embedding model: {self.model_name}")
+        print(f"Loading embedding model: {self.model_name}")
         self.embedding_model = SentenceTransformer(self.model_name)
     
     def find_relevant_tables(self, user_query: str, top_k: int = 5) -> List[str]:
@@ -113,20 +112,24 @@ class DatabaseRAGChatbot:
         return schema_text
     
     def generate_sql(self, user_query: str, relevant_tables: List[str]) -> str:
+
         schema_context = self.get_schema_for_tables(relevant_tables)
         
-        prompt = f"""You are a MSSQL expert. Generate a valid MSSQL query to answer the user's question.
-
+        prompt = f"""You are a MSSQL expert. Generate a valid and efficient MSSQL query from the context provided to answer the user's question.
 {schema_context}
 
 User Query: {user_query}
 
 Important Instructions:
 - Use exact table names with schema prefix (e.g., Sales.ShoppingCartItem, Production.Product)
-- Only use columns that exist in the schema
+- USE ONLY the columns and tables that are Provided in the schema context.
+- No need use all the tables provided for no reason. Use only ones you thik are best for crafting the query.
+- Do not create your own column or table names, otherwise you will be pelnalized heavily. 
+- Do not return any critical information like a persons security number etc. 
+- Do not create your own column names, Only use the column names in the provided context schema.
 - Return ONLY the SQL query, nothing else
 - Do not include markdown formatting, backticks, or any explanation
-- The query must be valid MSSQL T-SQL syntax
+- The query must be valid MSSQL syntax.
 - Use appropriate JOINs if multiple tables are needed
 - Add WHERE clauses if the user specifies filtering conditions
 
@@ -170,7 +173,130 @@ SQL Query:"""
         if not sql_upper.strip().startswith('SELECT'):
             return False, "Only SELECT queries are allowed"
         
+        validation_result = self._parse_and_validate_query(sql_query)
+        if not validation_result['valid']:
+            return False, validation_result['message']
+        
         return True, "Valid"
+    
+    def _parse_and_validate_query(self, sql_query: str) -> Dict[str, any]:
+        import re
+        
+        try:
+            table_pattern = r'\b(?:FROM|JOIN|INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL JOIN)\s+([a-zA-Z0-9_.]+)'
+            tables_mentioned = re.findall(table_pattern, sql_query, re.IGNORECASE)
+            
+            if not tables_mentioned:
+                return {'valid': False, 'message': 'No tables found in query'}
+            
+            # Normalize table names
+            normalized_tables = []
+            for table in tables_mentioned:
+                if '.' in table:
+                    schema, tbl = table.split('.')
+                    full_name = f"{schema}.{tbl}"
+                else:
+                    full_name = f"dbo.{table}"
+                normalized_tables.append(full_name)
+            
+            # Step 1: Check if all tables exist in schema
+            for table_name in normalized_tables:
+                if table_name not in self.table_index:
+                    return {
+                        'valid': False,
+                        'message': f"Table '{table_name}' not found in schema"
+                    }
+            
+            # Step 2: Validate columns
+            # Extract column references (simplified parsing)
+            column_validation = self._validate_columns(sql_query, normalized_tables)
+            if not column_validation['valid']:
+                return column_validation
+            
+            # Step 3: Validate foreign key relationships if JOINs are present
+            if 'JOIN' in sql_query.upper():
+                fk_validation = self._validate_foreign_keys(sql_query, normalized_tables)
+                if not fk_validation['valid']:
+                    return fk_validation
+            
+            return {'valid': True, 'message': 'All validations passed'}
+        
+        except Exception as e:
+            return {
+                'valid': False,
+                'message': f"Error during query validation: {str(e)}"
+            }
+    
+    def _validate_columns(self, sql_query: str, tables: List[str]) -> Dict[str, any]:
+        import re
+        
+        # Get all column names from schema
+        all_columns = {}
+        for table_name in tables:
+            if table_name in self.table_index:
+                table_info = self.table_index[table_name]
+                cols = [col['name'] for col in table_info['columns']]
+                all_columns[table_name] = cols
+        
+        # Look for common column reference patterns
+        # This is a simplified check - looks for table.column patterns
+        column_pattern = r'([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+)'
+        column_refs = re.findall(column_pattern, sql_query)
+        
+        for table_alias, column_name in column_refs:
+            # Try to match alias to actual table
+            matched_table = None
+            for actual_table in tables:
+                # Simple matching: check if alias matches table name or partial name
+                if table_alias.lower() == actual_table.split('.')[-1].lower():
+                    matched_table = actual_table
+                    break
+            
+            # If we found a match, validate the column exists
+            if matched_table and matched_table in all_columns:
+                if column_name not in all_columns[matched_table]:
+                    return {
+                        'valid': False,
+                        'message': f"Column '{column_name}' not found in table '{matched_table}'. Available columns: {', '.join(all_columns[matched_table][:5])}"
+                    }
+        
+        return {'valid': True, 'message': 'All columns validated'}
+    
+    def _validate_foreign_keys(self, sql_query: str, tables: List[str]) -> Dict[str, any]:
+        import re
+        
+        # Extract JOIN conditions
+        # Pattern: JOIN table ON condition
+        join_pattern = r'JOIN\s+([a-zA-Z0-9_.]+)\s+(?:AS\s+[a-zA-Z0-9_]+\s+)?ON\s+([^A-Z]+?)(?=JOIN|WHERE|GROUP|ORDER|$)'
+        join_conditions = re.findall(join_pattern, sql_query, re.IGNORECASE)
+        
+        if not join_conditions:
+            return {'valid': True, 'message': 'No JOINs to validate'}
+        
+        # Build FK map from schema
+        fk_map = {}  
+        for table_name, table_info in self.table_index.items():
+            for fk in table_info.get('foreign_keys', []):
+                source_col = fk['column']
+                target_ref = fk['references']  
+                fk_map[(table_name, source_col)] = target_ref
+        
+        # Validate each JOIN condition references valid FK relationships
+        for joined_table, condition in join_conditions:
+            # Normalize table name
+            if '.' in joined_table:
+                schema, tbl = joined_table.split('.')
+                joined_table_full = f"{schema}.{tbl}"
+            else:
+                joined_table_full = f"dbo.{joined_table}"
+            
+            if joined_table_full not in self.table_index:
+                return {
+                    'valid': False,
+                    'message': f"Joined table '{joined_table_full}' not found in schema"
+                }
+        
+        return {'valid': True, 'message': 'Foreign key relationships validated'}
     
     def execute_query(
         self,
@@ -251,7 +377,7 @@ SQL Query:"""
         
         if not is_valid:
             if verbose:
-                print(f"✗ Validation failed: {validation_msg}")
+                print(f"Validation failed: {validation_msg}")
             return {
                 "user_query": user_query,
                 "relevant_tables": relevant_tables,
@@ -261,7 +387,7 @@ SQL Query:"""
             }
         
         if verbose:
-            print(f"✓ Validation passed")
+            print(f"Validation passed")
         
         # Step 4: Execute query
         if verbose:
@@ -269,8 +395,8 @@ SQL Query:"""
         results = self.execute_query(sql_query, connection_string)
         
         if verbose:
-            print(f"✓ Query executed successfully")
-            print(f"✓ Retrieved {len(results)} rows")
+            print(f"Query executed successfully")
+            print(f"Retrieved {len(results)} rows")
         
         return {
             "user_query": user_query,
@@ -282,15 +408,12 @@ SQL Query:"""
         }
 
 
-# Main execution
 if __name__ == "__main__":
-
-    INDEX_DIR = "C:/AdventureWorksRAG/schema_index"  
+    INDEX_DIR = "./schema_index_new" 
     OLLAMA_URL = "http://127.0.0.1:11434"
-    OLLAMA_MODEL = "mistral:latest"
+    OLLAMA_MODEL = "qwen2.5-coder:latest"
     
-    # MSSQL Connection String
-    connection_string = (
+    CONNECTION_STRING = (
         "DRIVER={ODBC Driver 17 for SQL Server};"
         "SERVER=LAPTOP-RDP9UNKG\\SQLEXPRESS;"
         "DATABASE=AdventureWorks2014;"
@@ -298,7 +421,6 @@ if __name__ == "__main__":
     )
     
     try:
-        # Initialize chatbot
         print("Initializing RAG Chatbot...")
         chatbot = DatabaseRAGChatbot(
             index_dir=INDEX_DIR,
@@ -306,18 +428,18 @@ if __name__ == "__main__":
             model=OLLAMA_MODEL
         )
         
-        # Example queries
         test_queries = [
-            "Show number of employees per department.",
-            "Find average list price per product category.",
-            "List employees hired in the last 5 years."
-    ]
+        "Show number of employees per department.",
+        "Find average price per product category.",
+        "List employees hired 5 years before 2014.",
+        "Customers who placed more than 5 orders in a year 2014.",
+        "Employees who changed departments."
+        ]
         
-        # Run queries
         for query in test_queries:
             response = chatbot.chat(
                 user_query=query,
-                connection_string=connection_string,
+                connection_string=CONNECTION_STRING,
                 top_k_tables=5,
                 verbose=True
             )
